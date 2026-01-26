@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>City Finder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body style="font-family: Arial; text-align: center; padding: 40px;">
+
+  <h1>Find My City</h1>
+  <p id="status">Checking your location...</p>
+
+  <script>
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+        );
+        const data = await response.json();
+
+        const city =
+          data.address.city ||
+          data.address.town ||
+          data.address.village ||
+          "Unknown city";
+
+        document.getElementById("status").innerText =
+          "You are in: " + city;
+      }, () => {
+        document.getElementById("status").innerText =
+          "Location permission denied.";
+      });
+    } else {
+      document.getElementById("status").innerText =
+        "Location not supported.";
+    }
+  </script>
+
+</body>
+</html>
+
