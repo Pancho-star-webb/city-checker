@@ -1,40 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>City Finder</title>
+  <title>Address Finder</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body style="font-family: Arial; text-align: center; padding: 40px;">
 
-  <h1>Find My City</h1>
+  <h1>Find My Address</h1>
   <p id="status">Checking your location...</p>
 
   <script>
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(async (position) => {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
 
-        const response = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
-        );
-        const data = await response.json();
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`
+            );
 
-        const city =
-          data.address.city ||
-          data.address.town ||
-          data.address.village ||
-          "Unknown city";
+            const data = await response.json();
 
-        document.getElementById("status").innerText =
-          "You are in: " + city;
-      }, () => {
-        document.getElementById("status").innerText =
-          "Location permission denied.";
-      });
+            // Full readable address
+            const fullAddress = data.display_name || "Address not found";
+
+            document.getElementById("status").innerText =
+              "Your full address:\n" + fullAddress;
+
+          } catch (error) {
+            document.getElementById("status").innerText =
+              "Error fetching address.";
+          }
+        },
+        () => {
+          document.getElementById("status").innerText =
+            "Location permission denied.";
+        }
+      );
     } else {
       document.getElementById("status").innerText =
-        "Location not supported.";
+        "Geolocation not supported.";
     }
   </script>
 
